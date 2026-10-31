@@ -1,3 +1,5 @@
+import json
+import os
 import sys
 
 
@@ -21,29 +23,32 @@ class Quiz:
         return self.answer == user_answer
 
     def to_dict(self) -> dict:
-        """딕셔너리 변환 (JSON 저장 대비)"""
+        """딕셔너리 변환 (JSON 직렬화용)"""
         return {
             "question": self.question,
             "choices": self.choices,
-            "answer": self.answer
+            "answer": self.answer,
         }
 
     @classmethod
     def from_dict(cls, data: dict):
-        """딕셔너리로부터 Quiz 객체 생성"""
+        """딕셔너리로부터 Quiz 객체 역직렬화"""
         return cls(
             question=data["question"],
             choices=data["choices"],
-            answer=data["answer"]
+            answer=data["answer"],
         )
 
 
 class QuizGame:
-    """퀴즈 게임 전체 흐름과 상태를 관리하는 클래스"""
+    """퀴즈 게임 전체 흐름과 데이터 영속성을 관리하는 클래스"""
+
+    STATE_FILE = "state.json"
 
     def __init__(self):
-        self.quizzes: list[Quiz] = self._create_default_quizzes()
+        self.quizzes: list[Quiz] = []
         self.best_score: int | None = None
+        self.load_state()
 
     def _create_default_quizzes(self) -> list[Quiz]:
         """기본 탑재 퀴즈 5개 생성 (음식 & 요리 상식 주제)"""
@@ -51,29 +56,64 @@ class QuizGame:
             Quiz(
                 question="한국의 대표적인 발효 식품인 '김치'를 담글 때 가장 대중적으로 많이 쓰이는 주재료 채소는?",
                 choices=["배추", "양파", "감자", "당근"],
-                answer=1
+                answer=1,
             ),
             Quiz(
                 question="이탈리아의 대표적인 면 요리로 토마토, 크림, 오일 등 다양한 소스와 곁들여 먹는 음식은?",
                 choices=["타코", "파스타", "쌀국수", "메밀소바"],
-                answer=2
+                answer=2,
             ),
             Quiz(
                 question="'비빔밥'의 본고장으로 가장 널리 알려진 한국의 대표 도시는?",
                 choices=["강릉", "부산", "전주", "춘천"],
-                answer=3
+                answer=3,
             ),
             Quiz(
                 question="빵이나 쿠키를 구울 때 반죽을 부풀리기 위해 넣는 대표적인 재료는?",
                 choices=["베이킹파우더", "고춧가루", "참기름", "간장"],
-                answer=1
+                answer=1,
             ),
             Quiz(
                 question="한국에서 생일날 아침에 축하와 감사의 의미로 끓여 먹는 국의 주재료는?",
                 choices=["시금치", "미역", "콩나물", "고사리"],
-                answer=2
-            )
+                answer=2,
+            ),
         ]
+
+    def load_state(self):
+        """state.json 파일에서 데이터 불러오기 및 무결성 예외 처리"""
+        if not os.path.exists(self.STATE_FILE):
+            print(f"[안내] '{self.STATE_FILE}' 파일이 없어 기본 퀴즈 5개를 불러옵니다.")
+            self.quizzes = self._create_default_quizzes()
+            self.best_score = None
+            self.save_state()
+            return
+
+        try:
+            with open(self.STATE_FILE, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                self.quizzes = [Quiz.from_dict(q) for q in data.get("quizzes", [])]
+                self.best_score = data.get("best_score")
+            print(
+                f"[안내] 저장된 데이터를 성공적으로 불러왔습니다. (퀴즈 {len(self.quizzes)}개, 최고점수: {self.best_score if self.best_score is not None else '기록 없음'})"
+            )
+        except Exception as e:
+            print(f"\n[경고] 데이터 파일({self.STATE_FILE})이 손상되어 기본 데이터로 복구합니다. (사유: {e})")
+            self.quizzes = self._create_default_quizzes()
+            self.best_score = None
+            self.save_state()
+
+    def save_state(self):
+        """state.json 파일에 UTF-8 인코딩으로 데이터 저장"""
+        data = {
+            "quizzes": [q.to_dict() for q in self.quizzes],
+            "best_score": self.best_score,
+        }
+        try:
+            with open(self.STATE_FILE, "w", encoding="utf-8") as f:
+                json.dump(data, f, ensure_ascii=False, indent=2)
+        except Exception as e:
+            print(f"[오류] 데이터 파일 저장 중 문제가 발생했습니다: {e}")
 
     def print_menu(self):
         """메인 메뉴 출력"""
@@ -122,7 +162,7 @@ class QuizGame:
                 print("잘못된 입력입니다. 숫자를 입력하세요.")
 
     def play_quiz(self):
-        """퀴즈 풀기 진행 및 최고 점수 갱신"""
+        """퀴즈 풀기 진행 및 점수 자동 저장"""
         if not self.quizzes:
             print("\n[알림] 등록된 퀴즈가 없습니다. 먼저 퀴즈를 추가해 주세요.")
             return
@@ -138,7 +178,9 @@ class QuizGame:
                 print("★ 정답입니다!")
                 correct_count += 1
             else:
-                print(f"X 오답입니다! (정답: {quiz.answer}번 {quiz.choices[quiz.answer - 1]})")
+                print(
+                    f"X 오답입니다! (정답: {quiz.answer}번 {quiz.choices[quiz.answer - 1]})"
+                )
 
         score = int((correct_count / len(self.quizzes)) * 100)
         print("\n" + "-" * 30)
@@ -147,10 +189,11 @@ class QuizGame:
 
         if self.best_score is None or score > self.best_score:
             self.best_score = score
-            print("★ 새로운 최고 점수를 달성했습니다!")
+            self.save_state()
+            print("★ 새로운 최고 점수를 달성하여 저장했습니다!")
 
     def add_quiz(self):
-        """새로운 퀴즈 등록 및 예외 처리"""
+        """새로운 퀴즈 등록 및 state.json 영구 반영"""
         print("\n새로운 퀴즈를 추가합니다.")
 
         while True:
@@ -183,7 +226,8 @@ class QuizGame:
 
         new_quiz = Quiz(question=question, choices=choices, answer=answer)
         self.quizzes.append(new_quiz)
-        print("\n★ 퀴즈가 추가되었습니다!")
+        self.save_state()
+        print("\n★ 퀴즈가 추가되었으며 파일(state.json)에 저장되었습니다!")
 
     def list_quizzes(self):
         """등록된 퀴즈 목록 보기"""
@@ -218,10 +262,12 @@ class QuizGame:
                 elif choice == 4:
                     self.view_score()
                 elif choice == 5:
-                    print("\n게임을 종료합니다. 이용해 주셔서 감사합니다!")
+                    self.save_state()
+                    print("\n게임을 안전하게 저장하고 종료합니다. 이용해 주셔서 감사합니다!")
                     sys.exit(0)
             except (KeyboardInterrupt, EOFError):
-                print("\n\n강제 종료 신호가 감지되어 게임을 안전하게 종료합니다.")
+                self.save_state()
+                print("\n\n강제 종료 신호가 감지되어 현재 상태를 저장 후 안전하게 종료합니다.")
                 sys.exit(0)
 
 
