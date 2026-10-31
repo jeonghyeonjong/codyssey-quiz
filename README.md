@@ -248,3 +248,16 @@
 - [x] state.json 데이터 영속성 및 state.json.bak 백업 파일 3단계 복구 구현
 - [x] 공백, 문자열, 경계값 예외 처리 및 Ctrl+C 안전 종료 구현
 - [x] docs/ 폴더 내 증빙 스크린샷 및 README 기술 문서 구축 완료
+---
+
+## 12. 요구사항 변경 관리 및 파일·메서드 매핑 명세 (Maintenance Matrix)
+향후 기능 확장이나 비즈니스 로직 변경이 발생할 경우, 유지보수성을 극대화하기 위해 변경 시나리오별 구체적인 수정 대상 파일과 핵심 메서드를 아래와 같이 정의합니다.
+
+| 변경 요구사항 시나리오 | 수정 대상 파일 | 담당 클래스 | 핵심 수정 대상 메서드 / 속성 | 세부 작업 내용 |
+| :--- | :--- | :--- | :--- | :--- |
+| **문제 유형 확장** (O/X 및 주관식 퀴즈 도입) | `main.py` | `Quiz` | `__init__`, `display`, `is_correct` | 선택지 개수 가변화 및 주관식 문자열 비교 로직 오버라이딩 |
+| **선택지 문항 수 변경** (4지선다 → 5지선다) | `main.py` | `QuizGame` | `add_quiz`, `get_quiz_answer` | 입력 유효성 검증 범위 확대 (`1 <= answer <= 5`) |
+| **데이터 저장 포맷 변경** (JSON → SQLite/DB) | `main.py` | `QuizGame` | `load_state`, `save_state` | 파일 입출력 로직을 SQL 트랜잭션 쿼리로 전환 (인터페이스 유지) |
+| **백업 정책 고도화** (다중 세대 백업 지원) | `main.py` | `QuizGame` | `save_state`, `BACKUP_FILE` | 타임스탬프 기반 파일명 부여 (`state_YYYYMMDD.bak`) 및 N개 롤링 삭제 |
+| **메뉴 항목 추가** (오답노트 / 통계 조회 기능) | `main.py` | `QuizGame` | `print_menu`, `get_menu_choice`, `run` | 신규 메뉴 번호 배정 및 분기 처리 루틴 연결 |
+| **초기 기본 데이터 변경** (음식 외 타 주제 퀴즈) | `main.py` | `QuizGame` | `_create_default_quizzes` | 신규 퀴즈 인스턴스 리스트 데이터 교체 |
