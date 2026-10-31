@@ -97,6 +97,43 @@ def play_quiz(quizzes: list[Quiz]) -> int:
     return score
 
 
+def add_quiz(quizzes: list[Quiz]):
+    """새로운 퀴즈 등록 및 예외 처리"""
+    print("\n새로운 퀴즈를 추가합니다.")
+
+    while True:
+        question = input("문제를 입력하세요: ").strip()
+        if question:
+            break
+        print("문제는 비워둘 수 없습니다. 다시 입력해 주세요.")
+
+    choices = []
+    for i in range(1, 5):
+        while True:
+            choice = input(f"선택지 {i}: ").strip()
+            if choice:
+                choices.append(choice)
+                break
+            print(f"선택지 {i}번은 비워둘 수 없습니다. 다시 입력해 주세요.")
+
+    while True:
+        try:
+            answer_input = input("정답 번호 (1-4): ").strip()
+            if not answer_input:
+                print("입력이 비어 있습니다. 1-4 사이의 숫자를 입력하세요.")
+                continue
+            answer = int(answer_input)
+            if 1 <= answer <= 4:
+                break
+            print("잘못된 입력입니다. 1-4 사이의 숫자를 입력하세요.")
+        except ValueError:
+            print("잘못된 입력입니다. 숫자를 입력하세요.")
+
+    new_quiz = Quiz(question=question, choices=choices, answer=answer)
+    quizzes.append(new_quiz)
+    print("\n★ 퀴즈가 추가되었습니다!")
+
+
 def print_menu():
     print("\n" + "=" * 30)
     print("      나만의 음식 상식 퀴즈 게임")
@@ -137,7 +174,7 @@ def main():
             if choice == 1:
                 play_quiz(quizzes)
             elif choice == 2:
-                print("\n[알림] 퀴즈 추가 기능은 개발 예정입니다.")
+                add_quiz(quizzes)
             elif choice == 3:
                 print("\n[알림] 퀴즈 목록 기능은 개발 예정입니다.")
             elif choice == 4:
