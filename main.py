@@ -52,6 +52,51 @@ def create_default_quizzes() -> list[Quiz]:
     ]
 
 
+def get_quiz_answer() -> int:
+    """1~4 사이의 정답 번호 안전하게 입력받기"""
+    while True:
+        try:
+            user_input = input("정답 입력 (1-4): ").strip()
+            if not user_input:
+                print("입력이 비어 있습니다. 1-4 사이의 숫자를 입력하세요.")
+                continue
+
+            answer = int(user_input)
+            if 1 <= answer <= 4:
+                return answer
+            else:
+                print("잘못된 입력입니다. 1-4 사이의 숫자를 입력하세요.")
+        except ValueError:
+            print("잘못된 입력입니다. 숫자를 입력하세요.")
+
+
+def play_quiz(quizzes: list[Quiz]) -> int:
+    """퀴즈 풀기 진행 및 최종 점수(100점 만점) 반환"""
+    if not quizzes:
+        print("\n[알림] 등록된 퀴즈가 없습니다. 먼저 퀴즈를 추가해 주세요.")
+        return 0
+
+    print(f"\n▶ 퀴즈를 시작합니다! (총 {len(quizzes)}문제)")
+    correct_count = 0
+
+    for idx, quiz in enumerate(quizzes, 1):
+        quiz.display(idx)
+        user_ans = get_quiz_answer()
+
+        if quiz.is_correct(user_ans):
+            print("★ 정답입니다!")
+            correct_count += 1
+        else:
+            print(f"X 오답입니다! (정답: {quiz.answer}번 {quiz.choices[quiz.answer - 1]})")
+
+    score = int((correct_count / len(quizzes)) * 100)
+    print("\n" + "-" * 30)
+    print(f"▶ 결과: {len(quizzes)}문제 중 {correct_count}문제 정답! ({score}점)")
+    print("-" * 30)
+
+    return score
+
+
 def print_menu():
     print("\n" + "=" * 30)
     print("      나만의 음식 상식 퀴즈 게임")
@@ -90,7 +135,7 @@ def main():
             choice = get_menu_choice()
 
             if choice == 1:
-                print(f"\n[알림] 현재 준비된 퀴즈는 총 {len(quizzes)}개입니다. (퀴즈 풀기 기능은 브랜치 작업 예정)")
+                play_quiz(quizzes)
             elif choice == 2:
                 print("\n[알림] 퀴즈 추가 기능은 개발 예정입니다.")
             elif choice == 3:
