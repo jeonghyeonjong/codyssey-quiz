@@ -21,6 +21,37 @@ class Quiz:
         return self.answer == user_answer
 
 
+def create_default_quizzes() -> list[Quiz]:
+    """기본 탑재 퀴즈 5개 생성 (음식 & 요리 상식 주제)"""
+    return [
+        Quiz(
+            question="한국의 대표적인 발효 식품인 '김치'를 담글 때 가장 대중적으로 많이 쓰이는 주재료 채소는?",
+            choices=["배추", "양파", "감자", "당근"],
+            answer=1
+        ),
+        Quiz(
+            question="이탈리아의 대표적인 면 요리로 토마토, 크림, 오일 등 다양한 소스와 곁들여 먹는 음식은?",
+            choices=["타코", "파스타", "쌀국수", "메밀소바"],
+            answer=2
+        ),
+        Quiz(
+            question="'비빔밥'의 본고장으로 가장 널리 알려진 한국의 대표 도시는?",
+            choices=["강릉", "부산", "전주", "춘천"],
+            answer=3
+        ),
+        Quiz(
+            question="빵이나 쿠키를 구울 때 반죽을 부풀리기 위해 넣는 대표적인 재료는?",
+            choices=["베이킹파우더", "고춧가루", "참기름", "간장"],
+            answer=1
+        ),
+        Quiz(
+            question="한국에서 생일날 아침에 축하와 감사의 의미로 끓여 먹는 국의 주재료는?",
+            choices=["시금치", "미역", "콩나물", "고사리"],
+            answer=2
+        )
+    ]
+
+
 def print_menu():
     print("\n" + "=" * 30)
     print("      나만의 음식 상식 퀴즈 게임")
@@ -51,13 +82,15 @@ def get_menu_choice():
 
 
 def main():
+    quizzes = create_default_quizzes()
+
     while True:
         try:
             print_menu()
             choice = get_menu_choice()
 
             if choice == 1:
-                print("\n[알림] 퀴즈 풀기 기능은 개발 예정입니다.")
+                print(f"\n[알림] 현재 준비된 퀴즈는 총 {len(quizzes)}개입니다. (퀴즈 풀기 기능은 브랜치 작업 예정)")
             elif choice == 2:
                 print("\n[알림] 퀴즈 추가 기능은 개발 예정입니다.")
             elif choice == 3:
