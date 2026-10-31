@@ -118,3 +118,4 @@
 - 기능 단위 커밋: 메뉴 구현, Quiz 클래스, 기본 데이터, 브랜치 작업, 추가/목록/점수 기능, QuizGame 리팩토링, JSON 파일 저장 등 기능별로 분할 커밋 (10개 이상 커밋 달성)
 - 브랜치 생성 및 병합: feature/quiz-play 브랜치를 생성하여 퀴즈 풀기 기능을 격리 개발한 후 main 브랜치로 병합(Merge)
 - Git 필수 명령어 7종 실습: init, add, commit, push, pull, checkout, clone
+# Git Clone and Pull Synchronization Verified
