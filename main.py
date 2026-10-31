@@ -1,6 +1,26 @@
 import sys
 
 
+class Quiz:
+    """개별 퀴즈를 표현하는 클래스"""
+
+    def __init__(self, question: str, choices: list[str], answer: int):
+        self.question = question
+        self.choices = choices
+        self.answer = answer
+
+    def display(self, number: int | None = None):
+        """문제를 콘솔에 출력"""
+        prefix = f"[문제 {number}] " if number is not None else ""
+        print(f"\n{prefix}{self.question}")
+        for idx, choice in enumerate(self.choices, 1):
+            print(f"  {idx}. {choice}")
+
+    def is_correct(self, user_answer: int) -> bool:
+        """사용자가 입력한 정답 번호 검증"""
+        return self.answer == user_answer
+
+
 def print_menu():
     print("\n" + "=" * 30)
     print("      나만의 음식 상식 퀴즈 게임")
