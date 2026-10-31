@@ -134,6 +134,17 @@ def add_quiz(quizzes: list[Quiz]):
     print("\n★ 퀴즈가 추가되었습니다!")
 
 
+def list_quizzes(quizzes: list[Quiz]):
+    """등록된 퀴즈 목록 보기"""
+    if not quizzes:
+        print("\n[알림] 등록된 퀴즈가 없습니다.")
+        return
+
+    print(f"\n■ 등록된 퀴즈 목록 (총 {len(quizzes)}개)")
+    for idx, quiz in enumerate(quizzes, 1):
+        print(f"[{idx}] {quiz.question}")
+
+
 def print_menu():
     print("\n" + "=" * 30)
     print("      나만의 음식 상식 퀴즈 게임")
@@ -176,7 +187,7 @@ def main():
             elif choice == 2:
                 add_quiz(quizzes)
             elif choice == 3:
-                print("\n[알림] 퀴즈 목록 기능은 개발 예정입니다.")
+                list_quizzes(quizzes)
             elif choice == 4:
                 print("\n[알림] 점수 확인 기능은 개발 예정입니다.")
             elif choice == 5:
