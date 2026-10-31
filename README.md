@@ -7,7 +7,7 @@
 
 - 원격 저장소 URL: https://github.com/jeonghyeonjong/codyssey-quiz.git
 - 저장소 공개 설정: Public Repository
-- 총 커밋 수: 총 14개 커밋 달성 (미션 요구 기준 10개 이상 완벽 충족)
+- 총 커밋 수: 총 16개 커밋 달성 (미션 요구 기준 10개 이상 완벽 충족)
 
 ---
 
@@ -59,6 +59,23 @@
     정답 입력 (1-4): 1
     ★ 정답입니다!
 
+### 기능 목록
+- 퀴즈 풀기: 저장된 퀴즈를 순서대로 출제하고 정답/오답을 바로 알려 줍니다. 모든 문제를 풀면 점수를 표시하고, 최고 점수를 넘으면 state.json 에 저장합니다. 퀴즈가 없으면 안내 후 메뉴로 돌아갑니다.
+- 퀴즈 추가: 문제, 선택지 4개, 정답 번호(1-4)를 입력받아 등록하고 state.json 에 저장합니다. 빈 입력과 범위 밖 번호는 재입력을 요구합니다.
+- 퀴즈 목록: 등록된 퀴즈를 번호와 문제로 출력합니다. 퀴즈가 없으면 안내합니다.
+- 점수 확인: 저장된 최고 점수를 보여 줍니다. 아직 푼 기록이 없으면 안내합니다.
+- 종료: 현재 상태를 저장한 뒤 프로그램을 끝냅니다. Ctrl+C 또는 입력 종료(EOF)도 저장 후 안전하게 종료합니다.
+
+### 파일 구조
+
+    codyssey-quiz/
+    ├── main.py          # Quiz·QuizGame 클래스와 실행 진입점
+    ├── state.json       # 퀴즈 목록과 최고 점수 (실행 중 자동 저장)
+    ├── state.json.bak   # 저장 직전 state.json 사본 (저장 시 자동 생성)
+    ├── README.md        # 프로젝트 문서
+    ├── .gitignore       # __pycache__/, *.pyc 제외
+    └── docs/            # README 증빙 이미지
+
 ---
 
 ## 4. 객체 지향(OOP) 아키텍처 및 클래스 매핑
@@ -71,7 +88,7 @@
 | Quiz | is_correct(answer) | 사용자 입력값과 정답 일치 여부 판정 (bool 반환) |
 | Quiz | to_dict / from_dict | JSON 직렬화 및 역직렬화 변환 |
 | QuizGame | __init__ / load_state | 게임 구동 준비 및 3단계 무결성 복구 (메인->백업->초기화) |
-| QuizGame | save_state | 원자적 저장 전 백업본(state.json.bak) 생성 및 영속화 |
+| QuizGame | save_state | 저장 전 백업본(state.json.bak) 생성 및 영속화 |
 | QuizGame | print_menu / get_menu_choice | 메뉴 렌더링 및 1~5 정수 경계값 유효성 검증 |
 | QuizGame | play_quiz / get_quiz_answer | 퀴즈 풀이 세션 진행, 1~4 정답 검증, 최고 점수 갱신 |
 | QuizGame | add_quiz / list_quizzes | 새 퀴즈 대화형 검증 등록 및 등록된 전체 문제 요약 출력 |
@@ -182,11 +199,11 @@
 
 ## 10. Git 실습 검증 증빙 (로그 및 스크린샷 자산)
 
-### 1) Git 커밋 수치 증빙 (총 14개 커밋 달성)
+### 1) Git 커밋 수치 증빙 (총 16개 커밋 달성)
 - 요구 조건: 최소 10개 이상의 의미 있는 커밋
 - 확인 명령어 및 결과:
     $ git rev-list --count HEAD
-    14
+    16
 - 증빙 스크린샷:
 ![Git Commit Count Screenshot](docs/git_commit_count.png)
 
@@ -241,7 +258,7 @@
 
 ## 11. 요구사항 체크리스트
 - [x] Python 3.10 이상 실행 환경 검증 (Python 3.15.2)
-- [x] 10개 이상 커밋 수치 증빙 (총 14개 커밋 완료)
+- [x] 10개 이상 커밋 수치 증빙 (총 16개 커밋 완료)
 - [x] feature/quiz-play 브랜치 생성 및 main 병합 (--no-ff)
 - [x] Git 핵심 7종 명령어(init, add, commit, push, pull, checkout, clone) 실습 완료
 - [x] Quiz 및 QuizGame 클래스 2개 이상 객체지향 분리 설계
