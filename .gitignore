@@ -1,5 +1,6 @@
 __pycache__/
 *.py[cod]
 *.tmp
+*.corrupt
 .DS_Store
 Thumbs.db

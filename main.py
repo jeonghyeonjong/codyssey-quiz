@@ -97,6 +97,7 @@ class QuizRepository:
         self.state_file = os.path.join(root, "state.json")
         self.backup_file = os.path.join(root, "state.json.bak")
         self.temp_file = os.path.join(root, "state.json.tmp")
+        self.corrupt_file = os.path.join(root, "state.json.corrupt")
 
     @staticmethod
     def create_default_quizzes() -> list[Quiz]:
@@ -190,7 +191,11 @@ class QuizRepository:
                 )
                 return quizzes, best_score, history
 
-            print("[경고] 메인 데이터 파일 손상이 감지되어 백업 파일(.bak) 복구를 시도합니다.")
+            print("[경고] 메인 데이터 파일 손상이 감지되어 원본을 state.json.corrupt로 보존하고 백업 복구를 시도합니다.")
+            try:
+                shutil.copy2(self.state_file, self.corrupt_file)
+            except OSError:
+                pass
         else:
             print("[안내] 메인 데이터 파일(state.json)이 존재하지 않습니다.")
 
@@ -300,8 +305,18 @@ class QuizGame:
         return self._prompt_int_in_range("선택: ", 1, 5)
 
     def get_quiz_answer(self) -> int:
-        """4지선다 정답 번호(1~4) 입력 검증"""
-        return self._prompt_int_in_range("정답 입력 (1-4): ", 1, 4)
+        """선택지 개수(REQUIRED_CHOICE_COUNT) 기준 정답 번호 입력 검증"""
+        max_choice = Quiz.REQUIRED_CHOICE_COUNT
+        return self._prompt_int_in_range(
+            f"정답 입력 (1-{max_choice}): ", 1, max_choice
+        )
+
+    @staticmethod
+    def calculate_score(correct_count: int, total_count: int) -> int:
+        """맞힌 문항 수와 전체 문항 수를 바탕으로 100점 만점 기준 점수를 계산"""
+        if total_count <= 0:
+            return 0
+        return round((correct_count / total_count) * 100)
 
     def play_quiz(self) -> None:
         """저장된 퀴즈 출제, 정오답 판정, 최고 점수 갱신 및 풀이 기록 저장"""
@@ -324,7 +339,7 @@ class QuizGame:
                 correct_text = quiz.choices[quiz.answer - 1]
                 print(f"❌ 오답입니다! (정답: {quiz.answer}번 - {correct_text})")
 
-        score = round((correct_count / total) * 100)
+        score = self.calculate_score(correct_count, total)
         print("\n" + "=" * 40)
         print(f"🏆 결과: {total}문제 중 {correct_count}문제 정답! ({score}점)")
 
@@ -367,7 +382,10 @@ class QuizGame:
                 choices.append(choice)
                 break
 
-        answer = self._prompt_int_in_range("정답 번호 (1-4): ", 1, 4)
+        max_choice = Quiz.REQUIRED_CHOICE_COUNT
+        answer = self._prompt_int_in_range(
+            f"정답 번호 (1-{max_choice}): ", 1, max_choice
+        )
 
         new_quiz = Quiz(question=question, choices=choices, answer=answer)
         self.quizzes.append(new_quiz)

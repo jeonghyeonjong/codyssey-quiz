@@ -56,6 +56,7 @@ class TestQuizRepositoryRecovery(unittest.TestCase):
             rec_quizzes, rec_score, _ = repo.load_state()
             self.assertEqual(len(rec_quizzes), 5)
             self.assertEqual(rec_score, 80)
+            self.assertTrue(os.path.exists(repo.corrupt_file))
 
             # state.json 과 state.json.bak 동시 스키마 손상(answer: 99) -> 기본 5문항 안전 초기화 확인
             bad_payload = json.dumps({"quizzes": [{"question": "Q", "choices": ["1", "2", "3", "4"], "answer": 99}], "best_score": 50})
@@ -76,8 +77,9 @@ class TestQuizGameConsoleFlow(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmpdir:
             repo = QuizRepository(base_dir=tmpdir)
             game = QuizGame(repository=repo)
-            # 공백, 문자열(abc), 범위 밖(0, 9) 입력 후 4번(점수 확인) -> EOFError 발생 시 크래시 없이 종료 검증
-            inputs = ["   ", "abc", "0", "9", "4"]
+            self.assertEqual(game.calculate_score(4, 5), 80)
+            # 빈 입력, 공백 포함 유효 입력("  4  "), 문자열(abc), 범위 밖(0, 9) 후 EOFError 종료 검증
+            inputs = ["", "abc", "0", "9", "  4  "]
             with patch("builtins.input", side_effect=inputs + [EOFError()]):
                 game.run()
             self.assertTrue(os.path.exists(repo.state_file))
