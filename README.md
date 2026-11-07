@@ -339,10 +339,11 @@
 ![Git Clone and Pull Sync Screenshot](docs/git_clone_pull.png)
 
     $ git rev-list --count HEAD
-    23
+    24
 
     $ git log --oneline --graph
-    * (HEAD -> main, origin/main) docs: rewrite README with lifecycle flow, technical principles, and persistence proofs
+    * (HEAD -> main, origin/main) docs: refine menu list and persistence reload screenshot slices
+    * 6da71a9 docs: rewrite README with lifecycle flow, technical principles, and persistence proofs
     * b38d1da feat: extract calculate_score and preserve corrupt state file before recovery
     * 69cff77 docs: replace git graph and clone sync proof screenshots with real captures
     * d6eddcd docs: verify remote sync via git clone and pull in unified workspace
